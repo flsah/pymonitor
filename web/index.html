@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="liushuang">
+    <link rel="icon" href='{{ static_url("favicon.ico") }}'>
+
+    <title>远程服务器性能监控</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href='{{ static_url("css/bootstrap.min.css") }}' rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href='{{ static_url("css/ie10-viewport-bug-workaround.css") }}' rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href='{{ static_url("css/dashboard.css") }}' rel="stylesheet">
+    <link href='{{ static_url("css/charts.css") }}' rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]>
+    <script src='{{ static_url("js/ie8-responsive-file-warning.js") }}'></script><![endif]-->
+    <script src='{{ static_url("js/ie-emulation-modes-warning.js") }}'></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src='{{ static_url("js/html5shiv.min.js") }}'></script>
+    <script src='{{ static_url("js/respond.min.js") }}'></script>
+    <![endif]-->
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src='{{ static_url("js/jquery.min.js") }}'></script>
+    <script src='{{ static_url("js/bootstrap.min.js") }}'></script>
+    <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
+    <script src='{{ static_url("js/holder.min.js") }}'></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src='{{ static_url("js/ie10-viewport-bug-workaround.js") }}'></script>
+
+    <script src='{{ static_url("charts/loader.js") }}'></script>
+    <script src='{{ static_url("charts/monitorchart.js") }}'></script>
+    <script src='{{ static_url("js/mainboard.js") }}'></script>
+    <script src='{{ static_url("js/monitorboard.js") }}'></script>
+
+    <script type="text/javascript">
+        $().ready(function() {
+            mboard.init({
+                nav: 'ul.nav.nav-sidebar',
+                navCallback: function(data) {
+                    mboard.navHandler(data);
+                },
+                summaryEle: 'div.main',
+                summaryCallback: function(data) {
+                    mboard.summaryHandler(data);
+                }
+            });
+        });
+    </script>
+</head>
+
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">远程服务器性能监控</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/">首页</a></li>
+                <li><a href="#">设置</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar"></ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 chart-container main"></div>
+    </div>
+</div>
+</body>
+</html>
