@@ -44,6 +44,7 @@ var MainBoard = function() {
                 }
             }
 
+            this._loadScript();
             this.navigator();
             this.summary();
 
@@ -52,7 +53,21 @@ var MainBoard = function() {
             }, this.interval);
         },
 
-        navigator: function () {
+        _scripts: [
+            'charts/loader.js',
+            'charts/monitorchart.js',
+            'js/monitorboard.js',
+            'js/historyboard.js',
+            'js/setboard.js'],
+
+        _loadScript: function() {
+            var prefix = '/static/';
+            for (var i = 0; i < this._scripts.length; i++) {
+                $.getScript(prefix + this._scripts[i]);
+            }
+        },
+
+        navigator: function() {
             $.get("/navlist", {}, this.navCallback);
         },
 
@@ -83,12 +98,12 @@ var MainBoard = function() {
                 stat = line['stat'];
                 db = line['db'];
                 html += '<tr><td class="cell_c">' + line['server']
-                    + '</td><td class="cell_c">' + stat['cpuprct']
-                    + '%</td><td class="cell_c">' + stat['vmem']['percent']
-                    + '%</td><td class="cell_c">' + db['tps']
-                    + '</td><td class="cell_c">' + db['avgresp']
-                    + '</td><td class="cell_c">' + db['feedsuc']
-                    + '%</td><td class="cell_c">正常</td></tr>';
+                    + '</td><td class="cell_c">' + switchPrct(stat['cpuprct'])
+                    + '</td><td class="cell_c">' + switchPrct(stat['vmem']['percent'])
+                    + '</td><td class="cell_c">' + switchUndef(db['tps'])
+                    + '</td><td class="cell_c">' + switchUndef(db['avgresp'])
+                    + '</td><td class="cell_c">' + switchPrct(db['feedsuc'])
+                    + '</td><td class="cell_c">正常</td></tr>';
             }
             html = this._content.replace(/\$\{content\}/, html);
 
@@ -131,3 +146,7 @@ var MainBoard = function() {
 };
 
 var mboard = new MainBoard();
+
+function switchUndef(val) {
+    return val === undefined ? '--' : val;
+}

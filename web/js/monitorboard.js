@@ -131,7 +131,7 @@ var MonitorBoard = function() {
                     id: 'tps',
                     googleChartOpt: {
                         vAxis: {
-                            minValue: 0,
+                            minValue: 0
                         },
                         legend: 'left',
                         lineWidth: 0.7,
@@ -247,7 +247,7 @@ var MonitorBoard = function() {
         },
 
         _switchCpu: function(stat) {
-            $('.cpu-percent').text(swichPrct(stat['cpuprct']));
+            $('.cpu-percent').text(switchPrct(stat['cpuprct']));
             this._cpu_prct = stat['cpuprct'];
 
             var html = '';
@@ -264,7 +264,7 @@ var MonitorBoard = function() {
         _mem_dict: ['total', 'used', 'free'],
 
         _switchMem: function(vmem) {
-            $('.mem-percent').text(swichPrct(vmem['percent']));
+            $('.mem-percent').text(switchPrct(vmem['percent']));
             this._mem_prct = vmem['percent'];
             delete vmem['percent'];
 
@@ -286,9 +286,9 @@ var MonitorBoard = function() {
         },
 
         _swichQualify: function(qual) {
-            $('.tps-val').text(qual['tps']);
-            $('.avr-val').text(qual['avgresp'] + ' ms');
-            $('.suc-val').text(qual['feedsuc'] + ' %');
+            $('.tps-val').text(switchUndef(qual['tps']));
+            $('.avr-val').text(switchUndef(qual['avgresp']) + ' ms');
+            $('.suc-val').text(switchPrct(qual['feedsuc']));
         }
     };
 };
@@ -308,9 +308,9 @@ function calc(orgi) {
     return toPrec(changed, 2) + _unit[i];
 }
 
-function swichPrct(prct) {
+function switchPrct(prct) {
     if (isNaN(prct)) {
-        return "0.0%";
+        return "0.0 %";
     }
 
     prct = parseFloat(prct);

@@ -9,7 +9,7 @@ import json
 import sys
 import globalv
 
-from globalv import FileUtil as futil
+from globalv import FileUtil as fUtil
 
 
 def __get_host__(net_info):
@@ -24,7 +24,7 @@ hosts = {}
 # read configuration
 def __read_conf__():
     try:
-        for line in futil.read(globalv.conf_path()).split('\n'):
+        for line in fUtil.read(globalv.conf_path()).split('\n'):
             if len(line.strip()) == 0:
                 continue
 
@@ -66,27 +66,28 @@ def __collect__(srv_nm, host, port):
     return '{"server":"' + srv_nm + '","stat":"error"}'
 
 
-def __out_report__(rpt):
-    futil.write(globalv.svr_rpt_path(), rpt)
+def __out_report__(ctime, rpt):
+    rpt = re.sub(r'(?<={)(?="server")', '"h":{0},"m":{1},'
+                 .format(ctime.hour, ctime.minute), rpt)
+    fUtil.write(globalv.svr_rpt_path(), rpt)
 
 
-def __out_history__(rpt):
+def __out_history__(ctime, rpt):
     reload(sys)
     sys.setdefaultencoding('utf-8')
 
     rpt = json.loads(rpt)
     data = '['
     for datum in rpt:
-        data += '{' + '"server":"{0}","data":[{1},{2}]'.format(
+        data += '{' + '"server":"{0}","data":[{1},{2},{3},{4}]'.format(
             datum['server'],
             datum['stat']['cpuprct'],
-            datum['stat']['vmem']['percent']) + '},'
+            datum['stat']['vmem']['percent'],
+            ctime.hour, ctime.minute) + '},'
     data = re.sub(r',$', ']', data)
 
-    now = datetime.datetime.now()
-    his = '{' + '"h":{0},"m":{1},"data":{2}'.format(now.hour, now.minute, data) + '}\n'
-
-    futil.append(globalv.svr_arch_path(), his)
+    his = '{' + '"h":{0},"m":{1},"data":{2}'.format(ctime.hour, ctime.minute, data) + '}\n'
+    fUtil.append(globalv.svr_arch_path(), his)
 
 
 if __name__ == "__main__":
@@ -104,8 +105,10 @@ if __name__ == "__main__":
             inet = __get_host__(item[1])
             new_rpt += __collect__(item[0], inet[0], inet[1]) + ','
 
+        now = datetime.datetime.now()
         new_rpt = '[{0}]'.format(re.sub(r',$', '', new_rpt))
-        __out_report__(new_rpt)
-        __out_history__(new_rpt)
+
+        __out_report__(now, new_rpt)
+        __out_history__(now, new_rpt)
 
         time.sleep(globalv.INTERVAL)

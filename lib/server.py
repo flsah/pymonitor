@@ -97,8 +97,8 @@ class Application(tornado.web.Application):
 
 
 def __send_json__(resp, rpt):
-    if isinstance(rpt, dict)\
-            or isinstance(rpt, list)\
+    if isinstance(rpt, dict) \
+            or isinstance(rpt, list) \
             or isinstance(rpt, tuple):
         rpt = json.dumps(rpt)
 
@@ -113,7 +113,10 @@ def __read_report__():
         db_rpt = json.loads(futil.read(globalv.db_rpt_path()))
 
         for svr in svr_rpt:
-            svr['db'] = db_rpt[svr['server']]
+            if svr['server'] not in db_rpt:
+                svr['db'] = '{}'
+            else:
+                svr['db'] = db_rpt[svr['server']]
 
         return json.dumps(svr_rpt)
     except file.errors as msg:

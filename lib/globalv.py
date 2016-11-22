@@ -3,6 +3,7 @@ import os
 import datetime
 import time
 import json
+import re
 
 # interval is 60 seconds
 INTERVAL = 60
@@ -73,6 +74,8 @@ class FileUtil:
     @staticmethod
     def __modify__(name, mode, content):
         f = None
+        FileUtil.__ensure_dir__(name)
+
         try:
             f = open(name, mode)
             f.write(content)
@@ -82,8 +85,18 @@ class FileUtil:
                 f.close()
 
     @staticmethod
+    def __ensure_dir__(d):
+        d = re.sub(r'/[^/]+$', '', d, 1)
+        d = os.path.dirname(d)
+        if not os.path.exists(d):
+            os.makedirs(d)
+
+    @staticmethod
     def read(name):
         f = None
+        if not os.path.isfile(name):
+            return '{}'
+
         try:
             f = open(name, 'r')
             return f.read()
