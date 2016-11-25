@@ -173,3 +173,13 @@ th.head_align {
 .svr-table {
     width: 950px;
 }
+
+.hide {
+    display: none;
+}
+
+.page-btn {
+    position: relative;
+    float: left;
+    margin: -63px 0 0 550px;
+}

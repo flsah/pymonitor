@@ -31,15 +31,17 @@ var MainBoard = function() {
 
         nav: null,
 
-        summaryEle: null,
+        summaryEl: null,
 
         summaryCallback: null,
+
+        historyEl: null,
 
         _timer: 0,
 
         init: function(config) {
             for (var p in this) {
-                if (this.hasOwnProperty(p) && config[p]) {
+                if (this.hasOwnProperty(p) && config.hasOwnProperty(p)) {
                     this[p] = config[p];
                 }
             }
@@ -47,6 +49,7 @@ var MainBoard = function() {
             this._loadScript();
             this.navigator();
             this.summary();
+            this._initHistory();
 
             this._timer = setInterval(function () {
                 mboard.summary();
@@ -57,13 +60,21 @@ var MainBoard = function() {
             'charts/loader.js',
             'charts/monitorchart.js',
             'js/monitorboard.js',
-            'js/historyboard.js',
-            'js/setboard.js'],
+            'js/setboard.js'
+        ],
+
+        // _scripts: [
+        //     'charts/loader.js',
+        //     'charts/monitorchart.min.js',
+        //     'js/boards.min.js'
+        // ],
 
         _loadScript: function() {
-            var prefix = '/static/';
-            for (var i = 0; i < this._scripts.length; i++) {
-                $.getScript(prefix + this._scripts[i]);
+            var prefix = '/static/',
+                spt = this._scripts;
+
+            for (var i = 0; i < spt.length; i++) {
+                $.getScript(prefix + spt[i]);
             }
         },
 
@@ -107,7 +118,7 @@ var MainBoard = function() {
             }
             html = this._content.replace(/\$\{content\}/, html);
 
-            var tab = this.summaryEle;
+            var tab = this.summaryEl;
             if (typeof tab === 'string') {
                 tab = $(tab);
             }
@@ -118,7 +129,7 @@ var MainBoard = function() {
             clearInterval(mboard._timer);
 
             // alert($(event.target).text());
-            $('.nav.nav-sidebar > li').each(function(idx) {
+            $('.nav.nav-sidebar > li').each(function() {
                 var li = $(this),
                     a = li.children('a');
                 if (a.text() === serverName) {
@@ -132,7 +143,7 @@ var MainBoard = function() {
             });
 
             monitor.init({
-                dispEle: 'div.main',
+                dispEl: 'div.main',
                 freshCallback: function (data) {
                     monitor.express(data);
                 },
@@ -141,12 +152,21 @@ var MainBoard = function() {
                 },
                 serverName: serverName
             });
+
+            $(mboard.historyEl).removeClass('hide');
+        },
+        
+        _initHistory: function () {
+            if (typeof this.historyEl === 'string') {
+                this.historyEl = $(this.historyEl);
+            }
+            this.historyEl.click(this.history);
+        },
+
+        history: function () {
+            monitor.loadHistory();
         }
     };
 };
 
 var mboard = new MainBoard();
-
-function switchUndef(val) {
-    return val === undefined ? '--' : val;
-}

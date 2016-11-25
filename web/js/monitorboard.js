@@ -7,6 +7,10 @@ var MonitorBoard = function() {
         version: 'Monitor Board 1.0.0',
 
         _content: '<h1 class="page-header"></h1>\
+            <div class="page-btn hide">\
+                <button type="button" class="btn btn-sm btn-primary forward">&lt;&lt; 前4小时</button>\
+                <button type="button" class="btn btn-sm btn-primary backward">后4小时 &gt;&gt;</button>\
+            </div>\
             <div class="mon-info">\
                 <div class="mon-div cpu-info">\
                     <h2 class="sub-header sub-header-p">\
@@ -50,7 +54,7 @@ var MonitorBoard = function() {
                 </div>\
             </div>',
 
-        dispEle: null,
+        dispEl: null,
 
         freshCallback: null,
 
@@ -64,32 +68,44 @@ var MonitorBoard = function() {
 
         init: function (config) {
             for (var p in this) {
-                if (this.hasOwnProperty(p) && config[p]) {
+                if (this.hasOwnProperty(p) && config.hasOwnProperty(p)) {
                     this[p] = config[p];
                 }
             }
 
             if (!this._loaded) {
-                if (this.dispEle && typeof this.dispEle === 'string') {
-                    this.dispEle = $(this.dispEle);
+                if (this.dispEl && typeof this.dispEl === 'string') {
+                    this.dispEl = $(this.dispEl);
                 }
-                this.dispEle.html(this._content);
+                this.dispEl.html(this._content);
+
+                $('.btn-primary.forward').click(function() {
+                    monitor.loadHistory('f');
+                });
+                $('.btn-primary.backward').click(function() {
+                    monitor.loadHistory('b');
+                });
             }
 
-            this._addTitle();
+            this._initDisp();
             this.fresh();
             this._initChart();
 
             if (this._timer > 0) {
                 clearInterval(this._timer);
             }
+
             this._timer = setInterval(function() {
                 monitor.fresh();
             }, this.interval);
         },
 
-        _addTitle: function() {
+        _initDisp: function() {
             $('h1.page-header').text(this.serverName);
+            $('.humanized').each(function() {
+                $(this).removeClass('hide');
+            });
+            $('.page-btn').addClass('hide');
         },
 
         _sysChart: null,
@@ -114,9 +130,9 @@ var MonitorBoard = function() {
                         },
                         lineWidth: 0.7,
                         areaOpacity: 0.5,
-                        colors: ['#418CD8', '#80FF80']
+                        colors: ['#418CD8', '#899F00']
                     },
-                    dispEle: document.getElementById('sys_chart'),
+                    dispEl: document.getElementById('sys_chart'),
                     data: data['svr'],
                     index: [0, 1],
                     illustration: ['', 'CPU', '内存'],
@@ -138,7 +154,7 @@ var MonitorBoard = function() {
                         areaOpacity: 0.5,
                         colors: ['#FF7E40']
                     },
-                    dispEle: document.getElementById('tps_chart'),
+                    dispEl: document.getElementById('tps_chart'),
                     data: data['db'],
                     illustration: ['', ''],
                     start: data['shour'],
@@ -152,14 +168,14 @@ var MonitorBoard = function() {
                     id: 'averagetime',
                     googleChartOpt: {
                         vAxis: {
-                            minValue: 0,
+                            minValue: 0
                         },
                         legend: 'left',
                         lineWidth: 0.7,
                         areaOpacity: 0.5,
                         colors: ['#45C098']
                     },
-                    dispEle: document.getElementById('avr_chart'),
+                    dispEl: document.getElementById('avr_chart'),
                     data: data['db'],
                     index: 1,
                     illustration: ['', ''],
@@ -182,7 +198,7 @@ var MonitorBoard = function() {
                         areaOpacity: 0.5,
                         colors: ['#5500AA']
                     },
-                    dispEle: document.getElementById('suc_chart'),
+                    dispEl: document.getElementById('suc_chart'),
                     data: data['db'],
                     index: 2,
                     illustration: ['', ''],
@@ -289,58 +305,60 @@ var MonitorBoard = function() {
             $('.tps-val').text(switchUndef(qual['tps']));
             $('.avr-val').text(switchUndef(qual['avgresp']) + ' ms');
             $('.suc-val').text(switchPrct(qual['feedsuc']));
+        },
+
+        _historyStart: '',
+
+        loadHistory: function(direct) {
+            if (direct === undefined) {
+                this._addHistoryTitle();
+                this._historyStart = '';
+                direct = '';
+            }
+
+            $.post('/history',
+                [
+                    '{"svr_nm":"',
+                    this.serverName,
+                    '","start":"',
+                    this._historyStart,
+                    '","direct":"',
+                    direct,
+                    '"}'
+                ].join(''),
+                function(data) {
+                    monitor._historyCallback(data);
+                }
+            );
+        },
+
+        _historyCallback: function(data) {
+            if (typeof data === 'string')
+                data = $.parseJSON(data);
+
+            this._historyStart = data['stime'];
+
+            var stime = parseInt(this._historyStart.substring(8, 10));
+            if (stime == 0)
+                data['shour'] = 20;
+            else
+                data['shour'] = stime - 4;
+
+            data['ehour'] = stime;
+            data['eminu'] = 0;
+
+            this._reloadChart(data);
+        },
+
+        _addHistoryTitle: function() {
+            clearInterval(this._timer);
+            $('h1.page-header').text('历史记录 - ' + this.serverName);
+            $('.humanized').each(function() {
+                $(this).addClass('hide');
+            });
+            $('.page-btn').removeClass('hide');
         }
     };
 };
 
 var monitor = new MonitorBoard();
-
-var _unit = [' B ', ' KB', ' MB', ' GB'];
-function calc(orgi) {
-    var scalar = 1024;
-    var changed = parseFloat(orgi);
-
-    var i = 0;
-    for (; i < 4 && changed >= scalar; i++) {
-        changed /= scalar;
-    }
-
-    return toPrec(changed, 2) + _unit[i];
-}
-
-function switchPrct(prct) {
-    if (isNaN(prct)) {
-        return "0.0 %";
-    }
-
-    prct = parseFloat(prct);
-    if (prct == 0) {
-        return "0.0 %";
-    }
-
-    return toPrec(prct) + ' %';
-}
-
-function toPrec(num, prec) {
-    if (!prec) {
-        prec = 1;
-    }
-
-    eval('num = (Math.round(num * 1e' + prec
-            + ') / 1e' + prec + ').toString()');
-
-    if (prec > 0) {
-        if (num.indexOf('.') < 0) {
-            num += '.';
-        }
-
-        var pos = num.substring(num.indexOf('.')).length - 1;
-        if (pos < prec) {
-            for (var i = 0; i < prec - pos; i++) {
-                num += "0";
-            }
-        }
-    }
-
-    return num;
-}

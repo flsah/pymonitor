@@ -34,6 +34,7 @@
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src='{{ static_url("js/ie-adapter.min.js") }}'></script>
 
+    <script src='{{ static_url("js/utils.js") }}'></script>
     <script src='{{ static_url("js/mainboard.js") }}'></script>
 
     <script type="text/javascript">
@@ -43,10 +44,11 @@
                 navCallback: function(data) {
                     mboard.navHandler(data);
                 },
-                summaryEle: 'div.main',
+                summaryEl: 'div.main',
                 summaryCallback: function(data) {
                     mboard.summaryHandler(data);
-                }
+                },
+                historyEl: 'li.history-title'
             });
         });
     </script>
@@ -61,7 +63,8 @@
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="/">首页</a></li>
-                <li><a href="#">设置</a></li>
+                <li class="history-title hide"><a href="javascript: void(0);">历史记录</a></li>
+                <li><a href="javascript: void(0);">设置</a></li>
             </ul>
         </div>
     </div>

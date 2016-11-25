@@ -170,6 +170,20 @@ th.head_align {
     text-align: left;
 }
 
+.svr-table {
+    width: 950px;
+}
+
+.hide {
+    display: none;
+}
+
+.page-btn {
+    position: relative;
+    float: left;
+    margin: -63px 0 0 550px;
+}
+
 .chart-container {
     width: 1700px;
 }
@@ -181,3 +195,17 @@ th.head_align {
     height:300px;
     margin: 0 0 0 -100px;
 }
+
+/*!
+ * IE10 viewport hack for Surface/desktop Windows 8 bug
+ * Copyright 2014-2015 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ */
+
+/*
+ * See the Getting Started docs for more information:
+ * http://getbootstrap.com/getting-started/#support-ie10-width
+ */
+@-ms-viewport     { width: device-width; }
+@-o-viewport      { width: device-width; }
+@viewport         { width: device-width; }

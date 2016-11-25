@@ -6,7 +6,7 @@ module.exports = function (grunt) {
             options: {
                 '-W033': true
             },
-            pre: ['../web/charts/monitorchart.js', '../web/js/*boards.js'],
+            pre: ['../web/charts/monitorchart.js', '../web/js/*boards.js', '../web/js/utils.js'],
             after: ['../web/charts/monitorchart.min.js', '../web/js/boards.min.js']
         },
         concat: {
@@ -14,12 +14,12 @@ module.exports = function (grunt) {
                 src: [
                     '../web/css/dashboard.css',
                     '../web/css/charts.css',
-                    'ie10-viewport-bug-workaround.css'
+                    '../web/css/ie10-viewport-bug-workaround.css'
                 ],
                 dest: '../web/css/monitor.css'
             },
             js: {
-                src: ['../web/js/*board.js'],
+                src: ['../web/js/utils.js', '../web/js/*board.js'],
                 dest: '../web/js/boards.js'
             },
             ie: {
@@ -70,19 +70,13 @@ module.exports = function (grunt) {
                         return (!grunt.file.exists(dest + src));
                     }
                 }, {
-                    'dist/web/': '../web/js/*.min.js'
-                }, {
                     expand: true,
                     cwd: '../web/charts/',
                     src: '**/*',
                     dest: 'dist/web/charts',
                     filter: function (dest) {
                         var src = dest.replace(new RegExp('^' + this.cwd), '');
-                        if (src.endsWith('monitorchart.js')) {
-                            return false;
-                        }
-
-                        return true;
+                        return !src.endsWith('monitorchart.js');
                     }
                 }, {
                     expand: true,
@@ -91,15 +85,11 @@ module.exports = function (grunt) {
                     dest: 'dist/web',
                     filter: function (dest) {
                         var src = dest.replace(new RegExp('^' + this.cwd), '');
-                        if (src.endsWith('charts.html')) {
-                            return false;
-                        }
-
-                        return true;
+                        return !src.endsWith('charts.html');
                     }
                 }, {
-                    'dist/lib/': '../lib/*.py'
-                }, {
+                    'dist/lib/': '../lib/*.py',
+                    'dist/web/': '../web/js/*.min.js',
                     'dist/report/': '../report/'
                 }]
             }

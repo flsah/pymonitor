@@ -12,9 +12,9 @@ INTERVAL = 60
 TIMEAXIS = 4
 
 __home__ = os.path.dirname(os.path.abspath(__file__))
-__svr_rpt__, __db_rpt__, __svr_arch__, __db_arch__ = 'server.rpt',\
-                                                     'database.rpt',\
-                                                     'svrarch.{0}{1}{2}',\
+__svr_rpt__, __db_rpt__, __svr_arch__, __db_arch__ = 'server.rpt', \
+                                                     'database.rpt', \
+                                                     'svrarch.{0}{1}{2}', \
                                                      'dbarch.{0}{1}{2}'
 
 
@@ -157,6 +157,46 @@ class FileUtil:
         return s_hour, arch
 
     @staticmethod
+    def history(server_name, time_point, direct):
+        if time_point == '':
+            now = datetime.datetime.now()
+            hour = now.hour - now.hour % TIMEAXIS
+            time_point = '{0}{1}{2}{3}'.format(now.year, now.month, now.day, hour)
+            direct = 'n'
+
+        stamp = time.strptime(time_point, '%Y%m%d%H')
+        ctime = time.mktime(stamp)
+        if direct == 'f':
+            ctime -= TIMEAXIS * 3.6e3
+        elif direct == 'b':
+            ctime += TIMEAXIS * 3.6e3
+
+        start = ctime - TIMEAXIS * 3.6e3
+        sstamp = time.localtime(start)
+        estamp = time.localtime(ctime)
+
+        dt = time_point[0:8]
+        if stamp.tm_mday != sstamp.tm_mday:
+            dt = time.strftime('%Y%m%d', sstamp)
+
+        end_hour = estamp.tm_hour == 0 and 23 or estamp.tm_hour - 1
+        svr_history = FileUtil.__filter__(
+            svr_his_arch(dt),
+            server_name,
+            sstamp.tm_hour,
+            end_hour, 59)
+
+        stime = time.strftime('%Y%m%d%H', estamp)
+        return {
+            'stime': stime,
+            'svr': svr_history,
+            'db': FileUtil.__filter__(db_his_arch(dt),
+                                      server_name,
+                                      sstamp.tm_hour,
+                                      end_hour, 59)
+        }
+
+    @staticmethod
     def __filter__(filename, servername, start, end_h, end_m):
         if not os.path.isfile(filename):
             return []
@@ -171,7 +211,8 @@ class FileUtil:
             lj = json.loads(l)
             if lj['h'] < start:
                 continue
-            if end_h and lj['h'] == end_h and lj['m'] > end_m:
+            if end_h and ((lj['h'] == end_h and lj['m'] > end_m)
+                          or lj['h'] > end_h):
                 break
 
             for d in lj['data']:

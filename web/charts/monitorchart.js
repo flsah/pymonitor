@@ -17,7 +17,7 @@ var MonitorChart = function() {
         _vchart: null,
 
         // chart display position, should be a DOM element
-        dispEle: null,
+        dispEl: null,
 
         // chart move direction left-to-right ('l-r') or right-to-left ('r-l')
         direction: 'l-r',
@@ -70,11 +70,10 @@ var MonitorChart = function() {
 
         create: function (config) {
             for (var p in this) {
-                if (!this.hasOwnProperty(p))
+                if (!this.hasOwnProperty(p) || !config.hasOwnProperty(p))
                     continue;
 
-                if (config[p])
-                    this[p] = config[p];
+                this[p] = config[p];
             }
 
             if (!this.googleChartOpt || !(this.googleChartOpt instanceof Object)) {
@@ -93,7 +92,7 @@ var MonitorChart = function() {
             var prop = this._reloadProp;
 
             for (var i = 0; i < prop.length; i++) {
-                if (config[prop[i]])
+                if (config.hasOwnProperty(prop[i]))
                     this[prop[i]] = config[prop[i]];
             }
 
@@ -102,16 +101,18 @@ var MonitorChart = function() {
         },
 
         _load: function() {
-            var larr = [this.illustration], tarr = null, datarr = null;
-            var ix = this._index(), size = this.illustration.length;
-
             var pref = 0;
-            if (this.ctime[0] > -1) {
-                pref = (this.ctime[0] - this.start) * 60 +
-                        this.ctime[1] - this.data.length;
+            if (this.data.length > 0) {
+                var last = this.data[this.data.length - 1];
+                var ehour = last[last.length - 2],
+                    emin = last[last.length - 1];
+                pref = (ehour - this.start) * 60 + emin - this.data.length;
             }
 
             pref = pref > 0 ? pref : 0;
+
+            var larr = [this.illustration], tarr = null, datarr = null;
+            var ix = this._index(), size = this.illustration.length;
 
             if (this.direction === 'l-r') {
                 larr = larr.concat(this._fillBlank(1, pref + 1));
@@ -141,6 +142,8 @@ var MonitorChart = function() {
                     }
                 }
             }
+            // TODO implements r-l
+
             this._chartData = larr;
         },
 
@@ -148,7 +151,7 @@ var MonitorChart = function() {
             var vdata = google.visualization.arrayToDataTable(this._chartData);
 
             if (this._vchart === null) {
-                this._vchart = new google.visualization.AreaChart(this.dispEle);
+                this._vchart = new google.visualization.AreaChart(this.dispEl);
             }
 
             this._vchart.draw(vdata, this.googleChartOpt);
@@ -189,6 +192,8 @@ var MonitorChart = function() {
 
             if (m == 59) {
                 this.start++;
+                if (this.start === 24)
+                    this.start = 0;
             }
 
             return time_point;

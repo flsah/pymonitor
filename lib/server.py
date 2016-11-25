@@ -6,9 +6,9 @@ import re
 import tornado.web
 import globalv
 
-from tornado.web import RequestHandler
+from tornado.web import RequestHandler, stream_request_body
 from tornado.ioloop import IOLoop
-from globalv import FileUtil as futil
+from globalv import FileUtil as fUtil
 
 
 # Dashboard page handler
@@ -34,7 +34,10 @@ class NavHandler(RequestHandler):
     def data_received(self, chunk):
         pass
 
-    def get(self):
+    def post(self, *args, **kwargs):
+        NavHandler.get(self, *args, **kwargs)
+
+    def get(self, *args, **kwargs):
         rpt = __read_report__()
         nav = '['
         for rpt in json.loads(rpt):
@@ -43,23 +46,13 @@ class NavHandler(RequestHandler):
         __send_json__(self, re.sub(r',$', ']', nav))
 
 
-class DetailHandler(RequestHandler):
-    def data_received(self, chunk):
-        pass
-
-    def post(self, svr_nm):
-        self.get(self, svr_nm)
-
-    def get(self, svr_nm):
-        self.render('detail.html', svrname=svr_nm)
-
-
+# Remote server information, include cpu, memory and statistics from db
 class ServerInfoHandler(RequestHandler):
     def data_received(self, chunk):
         pass
 
     def post(self, svr_nm):
-        self.get(self, svr_nm)
+        ServerInfoHandler.get(self, svr_nm)
 
     def get(self, svr_nm):
         rpt = __read_report__()
@@ -69,12 +62,31 @@ class ServerInfoHandler(RequestHandler):
                 break
 
 
+@stream_request_body
 class HistoryHandler(RequestHandler):
+    svr_nm, start, direct = None, None, None
+
+    def data_received(self, chunk):
+        global svr_nm, start, direct
+        json_re = json.loads(chunk)
+
+        svr_nm = json_re['svr_nm']
+        start = json_re['start']
+        direct = json_re['direct']
+
+    def post(self):
+        __send_json__(self, fUtil.history(svr_nm, start, direct))
+
+    def get(self, server):
+        __send_json__(self, fUtil.read_all_history(server))
+
+
+class IndexMapHandler(RequestHandler):
     def data_received(self, chunk):
         pass
 
-    def get(self, svr_nm):
-        __send_json__(self, futil.read_all_history(svr_nm))
+    def get(self):
+        __send_json__(self, '')
 
 
 class Application(tornado.web.Application):
@@ -83,9 +95,10 @@ class Application(tornado.web.Application):
             (r'/', MainHandler),
             (r'/summary', SummaryHandler),
             (r'/navlist', NavHandler),
-            (r'/detail/(.+)', DetailHandler),
             (r'/serverinfo/(.+)', ServerInfoHandler),
             (r'/history/(.+)', HistoryHandler),
+            (r'/history', HistoryHandler),
+            (r'/index.js.map', IndexMapHandler),
         ]
         settings = {
             "debug": True,
@@ -109,8 +122,8 @@ def __send_json__(resp, rpt):
 
 def __read_report__():
     try:
-        svr_rpt = json.loads(futil.read(globalv.svr_rpt_path()))
-        db_rpt = json.loads(futil.read(globalv.db_rpt_path()))
+        svr_rpt = json.loads(fUtil.read(globalv.svr_rpt_path()))
+        db_rpt = json.loads(fUtil.read(globalv.db_rpt_path()))
 
         for svr in svr_rpt:
             if svr['server'] not in db_rpt:
