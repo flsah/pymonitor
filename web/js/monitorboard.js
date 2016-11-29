@@ -8,6 +8,7 @@ var MonitorBoard = function() {
 
         _content: '<h1 class="page-header"></h1>\
             <div class="page-btn hide">\
+                <input type="text" class="his-date" readonly>\
                 <button type="button" class="btn btn-sm btn-primary forward">&lt;&lt; 前4小时</button>\
                 <button type="button" class="btn btn-sm btn-primary backward">后4小时 &gt;&gt;</button>\
             </div>\
@@ -78,6 +79,7 @@ var MonitorBoard = function() {
                     this.dispEl = $(this.dispEl);
                 }
                 this.dispEl.html(this._content);
+                this.dispEl.addClass('chart-container');
 
                 $('.btn-primary.forward').click(function() {
                     monitor.loadHistory('f');
@@ -348,6 +350,21 @@ var MonitorBoard = function() {
             data['eminu'] = 0;
 
             this._reloadChart(data);
+
+            var hisDate = $('.his-date');
+            hisDate.datepicker();
+            hisDate.datepicker('option', 'dateFormat', 'yy-mm-dd');
+
+            var year = this._historyStart.substring(0, 4),
+                month = this._historyStart.substring(4, 6),
+                day = this._historyStart.substring(6, 8),
+                hour = this._historyStart.substring(8),
+                delta = 0;
+            if (hour === '00') {
+                delta = -1;
+            }
+            var d = changeDate([year, month, day].join('-'), delta)
+            hisDate.val(d);
         },
 
         _addHistoryTitle: function() {
@@ -357,6 +374,10 @@ var MonitorBoard = function() {
                 $(this).addClass('hide');
             });
             $('.page-btn').removeClass('hide');
+            $('.his-date').change(function() {
+                monitor._historyStart = this.value.replace(/-/g, '') + '08';
+                monitor.loadHistory('f');
+            });
         }
     };
 };

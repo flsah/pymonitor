@@ -13,26 +13,20 @@ module.exports = function (grunt) {
             css: {
                 src: [
                     '../web/css/dashboard.css',
-                    '../web/css/charts.css',
-                    '../web/css/ie10-viewport-bug-workaround.css'
+                    '../web/css/charts.css'
                 ],
                 dest: '../web/css/monitor.css'
             },
             js: {
                 src: ['../web/js/utils.js', '../web/js/*board.js'],
                 dest: '../web/js/boards.js'
-            },
-            ie: {
-                src: ['../web/js/ie*.js'],
-                dest: '../web/js/ie-adapter.js'
             }
         },
         uglify: {
             static_mappings: {
                 files: [
                     {src: '../web/js/boards.js', dest: '../web/js/boards.min.js'},
-                    {src: '../web/charts/monitorchart.js', dest: '../web/charts/monitorchart.min.js'},
-                    {src: '../web/js/ie-adapter.js', dest: '../web/js/ie-adapter.min.js'}
+                    {src: '../web/charts/monitorchart.js', dest: '../web/charts/monitorchart.min.js'}
                 ]
             }
         },

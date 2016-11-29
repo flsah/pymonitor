@@ -70,7 +70,7 @@ var MonitorChart = function() {
 
         create: function (config) {
             for (var p in this) {
-                if (!this.hasOwnProperty(p) || !config.hasOwnProperty(p))
+                if (!config.hasOwnProperty(p))
                     continue;
 
                 this[p] = config[p];
@@ -167,7 +167,9 @@ var MonitorChart = function() {
                 arr = this._chartData[this._curPos];
             }
 
-            if (data instanceof Array) {
+            if (data === undefined) {
+                arr[1] = 0;
+            } else if (data instanceof Array) {
                 for (var i = 0; i < data.length; i++) {
                     arr[i + 1] = data[i];
                 }

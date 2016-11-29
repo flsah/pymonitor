@@ -38,12 +38,16 @@ class NavHandler(RequestHandler):
         NavHandler.get(self, *args, **kwargs)
 
     def get(self, *args, **kwargs):
-        rpt = __read_report__()
         nav = '['
-        for rpt in json.loads(rpt):
-            nav += '"' + rpt['server'] + '",'
+        for rpt in __read_report__():
+            if rpt['stat'] == 'error':
+                nav += '["' + rpt['server'] + '", "error"],'
+            else:
+                nav += '"' + rpt['server'] + '",'
 
-        __send_json__(self, re.sub(r',$', ']', nav))
+        nav += ']'
+
+        __send_json__(self, re.sub(r'(?:^u\'|,(?=]\'$)|\'$)', '', repr(nav)))
 
 
 # Remote server information, include cpu, memory and statistics from db
@@ -51,13 +55,12 @@ class ServerInfoHandler(RequestHandler):
     def data_received(self, chunk):
         pass
 
-    def post(self, svr_nm):
-        ServerInfoHandler.get(self, svr_nm)
+    def post(self, server_name):
+        ServerInfoHandler.get(self, server_name)
 
-    def get(self, svr_nm):
-        rpt = __read_report__()
-        for rpt in json.loads(rpt):
-            if rpt['server'] == svr_nm:
+    def get(self, server_name):
+        for rpt in __read_report__():
+            if rpt['server'] == server_name:
                 __send_json__(self, rpt)
                 break
 
@@ -110,9 +113,7 @@ class Application(tornado.web.Application):
 
 
 def __send_json__(resp, rpt):
-    if isinstance(rpt, dict) \
-            or isinstance(rpt, list) \
-            or isinstance(rpt, tuple):
+    if not isinstance(rpt, str):
         rpt = json.dumps(rpt)
 
     resp.add_header("Content-Type", "application/json")
@@ -127,14 +128,14 @@ def __read_report__():
 
         for svr in svr_rpt:
             if svr['server'] not in db_rpt:
-                svr['db'] = '{}'
+                svr['db'] = {}
             else:
                 svr['db'] = db_rpt[svr['server']]
 
-        return json.dumps(svr_rpt)
+        return svr_rpt
     except file.errors as msg:
         print msg
-        return '{"error":true}'
+        return '{"stat":"error"}'
 
 
 if __name__ == "__main__":

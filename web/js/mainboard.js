@@ -6,7 +6,10 @@ var MainBoard = function() {
     return {
         version: 'Main Board 1.0.0',
 
-        _content: '<h1 class="page-header">监控面板</h1>\
+        _content:
+            '<div class="alert alert-danger hide" role="alert">\
+            <strong>错误！</strong>检测到受控机状态异常，请联系管理员处理。</div>\
+            <h1 class="page-header">监控面板</h1>\
             <h2 class="sub-header">POIN</h2>\
             <div class="table-responsive">\
                 <table class="table table-striped svr-table">\
@@ -82,12 +85,23 @@ var MainBoard = function() {
             $.get("/navlist", {}, this.navCallback);
         },
 
+        _serStatus: {},
+
         navHandler: function(data) {
             var nav = $.parseJSON(data);
-            var html = '';
+            var html = '', name, status;
             for (var n in nav) {
-                html += '<li><a href="javascript: void(0);" onclick="mboard.detail(\'' +
-                            nav[n] + '\');">' + nav[n] + '</a></li>'
+                if (typeof nav[n] === 'string') {
+                    name = nav[n];
+                    status = true;
+                } else {
+                    name = nav[n][0];
+                    status = false;
+                }
+                this._serStatus[name] = status;
+
+                html += ['<li><a href="javascript: void(0);" onclick="mboard.detail(\'',
+                            name, '\');">', name, '</a></li>'].join('');
             }
 
             var navbar = this.nav;
@@ -103,18 +117,33 @@ var MainBoard = function() {
 
         summaryHandler: function(data) {
             var info = $.parseJSON(data);
-            var html = '', line, stat, db;
+            var html = '', line, stat, db, status, trStyle;
             for (var n in info) {
                 line = info[n];
                 stat = line['stat'];
+                status = '正常';
+                trStyle = '';
+
+                mboard._serStatus[line['server']] = (stat !== 'error');
+                if (stat === 'error') {
+                    stat = {
+                        cpuprct: '-',
+                        vmem: {
+                            percent: '-'
+                        }
+                    };
+                    status = '错误';
+                    trStyle = ' class="err-tr"';
+                }
+
                 db = line['db'];
-                html += '<tr><td class="cell_c">' + line['server']
-                    + '</td><td class="cell_c">' + switchPrct(stat['cpuprct'])
-                    + '</td><td class="cell_c">' + switchPrct(stat['vmem']['percent'])
-                    + '</td><td class="cell_c">' + switchUndef(db['tps'])
-                    + '</td><td class="cell_c">' + switchUndef(db['avgresp'])
-                    + '</td><td class="cell_c">' + switchPrct(db['feedsuc'])
-                    + '</td><td class="cell_c">正常</td></tr>';
+                html += ['<tr', trStyle, '><td class="cell_c">', line['server'],
+                    '</td><td class="cell_c">', switchPrct(stat['cpuprct']),
+                    '</td><td class="cell_c">', switchPrct(stat['vmem']['percent']),
+                    '</td><td class="cell_c">', switchUndef(db['tps']),
+                    '</td><td class="cell_c">', switchUndef(db['avgresp']),
+                    '</td><td class="cell_c">', switchPrct(db['feedsuc']),
+                    '</td><td class="cell_c">', status, '</td></tr>'].join('');
             }
             html = this._content.replace(/\$\{content\}/, html);
 
@@ -126,9 +155,6 @@ var MainBoard = function() {
         },
 
         detail: function (serverName) {
-            clearInterval(mboard._timer);
-
-            // alert($(event.target).text());
             $('.nav.nav-sidebar > li').each(function() {
                 var li = $(this),
                     a = li.children('a');
@@ -141,6 +167,13 @@ var MainBoard = function() {
                     li.removeClass('active');
                 }
             });
+
+            if (!mboard._serStatus[serverName]) {
+                $('.alert-danger').removeClass('hide');
+                return;
+            }
+
+            clearInterval(mboard._timer);
 
             monitor.init({
                 dispEl: 'div.main',

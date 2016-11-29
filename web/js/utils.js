@@ -17,7 +17,7 @@ function calc(orgi) {
 
 function switchPrct(prct) {
     if (isNaN(prct)) {
-        return "0.0 %";
+        return "--";
     }
 
     prct = parseFloat(prct);
@@ -56,4 +56,15 @@ function toPrec(num, prec) {
 
 function switchUndef(val) {
     return val === undefined ? '--' : val;
+}
+
+function changeDate(date, delta) {
+    var d = new Date(date).valueOf();
+    d = new Date(d + delta * 8.64e7);
+    var year = 1900 + d.getYear(),
+        month = d.getMonth() + 1,
+        day = d.getDate();
+
+    return [year, (month < 10 ? '0' : '') + month,
+        (day < 10 ? '0' : '') + day].join('-');
 }

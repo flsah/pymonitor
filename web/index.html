@@ -11,9 +11,8 @@
 
     <!-- Bootstrap core CSS -->
     <link href='{{ static_url("css/bootstrap.min.css") }}' rel="stylesheet">
-
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <link href='{{ static_url("css/ie10-viewport-bug-workaround.css") }}' rel="stylesheet">
+    <link href='{{ static_url("css/jquery-ui.min.css") }}' rel="stylesheet">
+    <link href='{{ static_url("css/jquery-ui.theme.min.css") }}' rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href='{{ static_url("css/dashboard.css") }}' rel="stylesheet">
@@ -28,11 +27,10 @@
     <!-- Bootstrap core JavaScript -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src='{{ static_url("js/jquery.min.js") }}'></script>
+    <script src='{{ static_url("js/jquery-ui.min.js") }}'></script>
     <script src='{{ static_url("js/bootstrap.min.js") }}'></script>
     <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
     <script src='{{ static_url("js/holder.min.js") }}'></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src='{{ static_url("js/ie-adapter.min.js") }}'></script>
 
     <script src='{{ static_url("js/utils.js") }}'></script>
     <script src='{{ static_url("js/mainboard.js") }}'></script>
@@ -74,7 +72,7 @@
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar"></ul>
         </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 chart-container main"></div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main"></div>
     </div>
 </div>
 </body>

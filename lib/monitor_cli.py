@@ -60,6 +60,8 @@ def __collect__(srv_nm, host, port):
         return data
     except socket.error as msg:
         print msg
+    except SystemError as error:
+        print error.message
         if s:
             s.close()
 
@@ -79,11 +81,16 @@ def __out_history__(ctime, rpt):
     rpt = json.loads(rpt)
     data = '['
     for datum in rpt:
-        data += '{' + '"server":"{0}","data":[{1},{2},{3},{4}]'.format(
-            datum['server'],
-            datum['stat']['cpuprct'],
-            datum['stat']['vmem']['percent'],
-            ctime.hour, ctime.minute) + '},'
+        data += '{' + '"server":"' + datum['server'] + '", "data":['
+
+        if datum['stat'] == 'error':
+            data += '0,0,'
+        else:
+            data += '{0},{1},'.format(
+                datum['stat']['cpuprct'],
+                datum['stat']['vmem']['percent'])
+        data += '{0},{1}]'.format(ctime.hour, ctime.minute) + '},'
+
     data = re.sub(r',$', ']', data)
 
     his = '{' + '"h":{0},"m":{1},"data":{2}'.format(ctime.hour, ctime.minute, data) + '}\n'
