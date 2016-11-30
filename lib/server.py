@@ -18,7 +18,12 @@ class MainHandler(RequestHandler):
         pass
 
     def get(self):
-        self.render("index.html")
+        try:
+            debug = self.get_argument('debug')
+            if debug:
+                self.render('index_debug.html')
+        except Exception:
+            self.render("index.html")
 
 
 # Dashboard page summany table handler

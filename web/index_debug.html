@@ -7,7 +7,7 @@
     <meta name="author" content="liushuang">
     <link rel="icon" href='{{ static_url("favicon.ico") }}'>
 
-    <title>远程服务器性能监控</title>
+    <title>远程服务器性能监控（调试模式）</title>
 
     <!-- Bootstrap core CSS -->
     <link href='{{ static_url("css/bootstrap.min.css") }}' rel="stylesheet">
@@ -15,15 +15,27 @@
     <link href='{{ static_url("css/jquery-ui.theme.min.css") }}' rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href='{{ static_url("css/monitor.min.css") }}' rel="stylesheet">
+    <link href='{{ static_url("css/dashboard.css") }}' rel="stylesheet">
+    <link href='{{ static_url("css/charts.css") }}' rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src='{{ static_url("js/html5shiv.min.js") }}'></script>
+    <script src='{{ static_url("js/respond.min.js") }}'></script>
+    <![endif]-->
 
     <!-- Bootstrap core JavaScript -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src='{{ static_url("js/jquery.min.js") }}'></script>
     <script src='{{ static_url("js/jquery-ui.min.js") }}'></script>
     <script src='{{ static_url("js/bootstrap.min.js") }}'></script>
+    <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
+    <script src='{{ static_url("js/holder.min.js") }}'></script>
 
-    <script src='{{ static_url("js/boards.min.js") }}'></script>
+    <script src='{{ static_url("js/utils.js") }}'></script>
+    <script src='{{ static_url("js/setboard.js") }}'></script>
+    <script src='{{ static_url("js/monitorboard.js") }}'></script>
+    <script src='{{ static_url("js/mainboard.js") }}'></script>
 
     <script type="text/javascript">
         $().ready(function() {
@@ -47,7 +59,7 @@
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="/">远程服务器性能监控</a>
+            <a class="navbar-brand" href="/">远程服务器性能监控（调试模式）</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">

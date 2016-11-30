@@ -226,3 +226,7 @@ th.head_align {
     text-align: center;
     margin-bottom: 6px;
 }
+
+div.set-panel-bottom > button, div.page-btn > button {
+    margin-right: 10px;
+}

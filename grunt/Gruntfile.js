@@ -6,7 +6,7 @@ module.exports = function (grunt) {
             options: {
                 '-W033': true
             },
-            pre: ['../web/charts/monitorchart.js', '../web/js/*boards.js', '../web/js/utils.js'],
+            pre: ['../web/charts/monitorchart.js', '../web/js/*board.js', '../web/js/utils.js'],
             after: ['../web/charts/monitorchart.min.js', '../web/js/boards.min.js']
         },
         concat: {

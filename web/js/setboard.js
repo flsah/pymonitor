@@ -5,20 +5,20 @@
 var SetBoard = function() {
     return {
         version: 'Set Board v1.0.0',
-        _content:
-            '<div class="panel panel-primary set-board" style="display: none">\
-                <div class="panel-heading">\
-                    <h3 class="panel-title">设置</h3>\
-                </div>\
-                <h3 style="text-align: center;">受控机管理</h3>\
-                <div class="panel-body set-list"></div>\
-                <div class="set-panel-bottom">\
-                    <button type="button" class="btn btn-sm btn-info btn-save">保存</button>\
-                    <button type="button" class="btn btn-sm btn-info btn-add">新增</button>\
-                    <button type="button" class="btn btn-sm btn-default btn-cancle">关闭</button>\
-                </div>\
-                <div class="alert hide hint-bar" role="alert"></div>\
-            </div>',
+        _content: [
+            '<div class="panel panel-primary set-board" style="display: none">',
+                '<div class="panel-heading">',
+                    '<h3 class="panel-title">设置</h3>',
+                '</div>',
+                '<h3 style="text-align: center;">受控机管理</h3>',
+                '<div class="panel-body set-list"></div>',
+                '<div class="set-panel-bottom">',
+                    '<button type="button" class="btn btn-sm btn-info btn-save">保存</button>',
+                    '<button type="button" class="btn btn-sm btn-info btn-add">新增</button>',
+                    '<button type="button" class="btn btn-sm btn-default btn-cancle">关闭</button>',
+                '</div>',
+                '<div class="alert hide hint-bar" role="alert"></div>',
+            '</div>'].join(''),
 
         setEl: null,
 
@@ -79,12 +79,12 @@ var SetBoard = function() {
                 for (var n in data) {
                     html += [
                         '<tr><td class="cell_c" width=""><input type="hidden" value="',
-                        data[n]['server'],
-                        '">', data[n]['server'],
+                        data[n].server,
+                        '">', data[n].server,
                         '</td><td><input type="text" style="text-align: center;" size="13" value="',
-                        data[n]['host'],
+                        data[n].host,
                         '"><strong> : </strong><input type="text" style="text-align: center;" size="4" value="',
-                        data[n]['port'],
+                        data[n].port,
                         '"></td><td><strong class="btn-del" title="删除">X</strong>',
                         '</td></tr>'
                     ].join('');
@@ -162,7 +162,7 @@ var SetBoard = function() {
                 if (typeof data === 'string')
                     data = $.parseJSON(data);
 
-                if (data['status'] === 'ok') {
+                if (data.status === 'ok') {
                     self._hint('保存成功', 's');
 
                     $('.panel-body :text, .panel-body :hidden')
@@ -182,10 +182,10 @@ var SetBoard = function() {
         },
 
         _add: function() {
-            var html = '<tr><td class="cell_c" width=""><input type="text" value=""></td>\
-                <td><input type="text" style="text-align: center;" size="13" value="">\
-                <strong> : </strong><input type="text" style="text-align: center;" size="4" value=""></td>\
-                <td><strong class="btn-del" title="删除">X</strong></td></tr>';
+            var html = ['<tr><td class="cell_c" width=""><input type="text" value=""></td>',
+                '<td><input type="text" style="text-align: center;" size="13" value="">',
+                '<strong> : </strong><input type="text" style="text-align: center;" size="4" value=""></td>',
+                '<td><strong class="btn-del" title="删除">X</strong></td></tr>'].join('');
 
             $('table.host-list > tbody').append(html);
             $('table.host-list > tbody td:last > .btn-del')

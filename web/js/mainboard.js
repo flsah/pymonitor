@@ -6,27 +6,27 @@ var MainBoard = function() {
     return {
         version: 'Main Board 1.0.0',
 
-        _content:
-            '<div class="alert alert-danger hide" role="alert">\
-            <strong>错误！</strong>检测到受控机状态异常，请联系管理员处理。</div>\
-            <h1 class="page-header">监控面板</h1>\
-            <h2 class="sub-header">POIN</h2>\
-            <div class="table-responsive">\
-                <table class="table table-striped svr-table">\
-                    <thead>\
-                        <tr>\
-                            <th class="head_align" width="30%">远程服务器</th>\
-                            <th class="head_align" width="12%">CPU使用率</th>\
-                            <th class="head_align" width="12%">内存使用率</th>\
-                            <th class="head_align" width="12%">TPS</th>\
-                            <th class="head_align" width="12%">平均响应时间</th>\
-                            <th class="head_align" width="12%">返回报文成功率</th>\
-                            <th class="head_align" width="10%">状态</th>\
-                        </tr>\
-                    </thead>\
-                    <tbody>${content}</tbody>\
-                </table>\
-            </div>',
+        _content: [
+            '<div class="alert alert-danger hide" role="alert">',
+            '<strong>错误！</strong>检测到受控机状态异常，请联系管理员处理。</div>',
+            '<h1 class="page-header">监控面板</h1>',
+            '<h2 class="sub-header">POIN</h2>',
+            '<div class="table-responsive">',
+                '<table class="table table-striped svr-table">',
+                    '<thead>',
+                        '<tr>',
+                            '<th class="head_align" width="30%">远程服务器</th>',
+                            '<th class="head_align" width="12%">CPU使用率</th>',
+                            '<th class="head_align" width="12%">内存使用率</th>',
+                            '<th class="head_align" width="12%">TPS</th>',
+                            '<th class="head_align" width="12%">平均响应时间</th>',
+                            '<th class="head_align" width="12%">返回报文成功率</th>',
+                            '<th class="head_align" width="10%">状态</th>',
+                        '</tr>',
+                    '</thead>',
+                    '<tbody>${content}</tbody>',
+                '</table>',
+            '</div>'].join(''),
 
         interval: 60000,
 
@@ -46,7 +46,7 @@ var MainBoard = function() {
 
         init: function(config) {
             for (var p in this) {
-                if (this.hasOwnProperty(p) && config.hasOwnProperty(p)) {
+                if (config.hasOwnProperty(p)) {
                     this[p] = config[p];
                 }
             }
@@ -55,6 +55,7 @@ var MainBoard = function() {
             this.navigator();
             this.summary();
             this._initHistory();
+            this._initSet();
 
             this._timer = setInterval(function () {
                 mboard.summary();
@@ -63,31 +64,15 @@ var MainBoard = function() {
 
         _scripts: [
             'charts/loader.js',
-            'charts/monitorchart.js',
-            'js/monitorboard.js',
-            'js/setboard.js'
+            'charts/monitorchart.min.js'
         ],
-
-        // _scripts: [
-        //     'charts/loader.js',
-        //     'charts/monitorchart.min.js',
-        //     'js/boards.min.js'
-        // ],
 
         _loadScript: function() {
             var prefix = '/static/',
-                spt = this._scripts,
-                callback;
+                spt = this._scripts;
 
             for (var i = 0; i < spt.length; i++) {
-                if (spt[i].indexOf('setboard') > 0) {
-                    callback = function() {
-                        mboard._initSet();
-                    };
-                } else {
-                    callback = function() {};
-                }
-                $.getScript(prefix + spt[i], callback);
+                $.getScript(prefix + spt[i]);
             }
         },
 
@@ -130,11 +115,11 @@ var MainBoard = function() {
             var html = '', line, stat, db, status, trStyle;
             for (var n in info) {
                 line = info[n];
-                stat = line['stat'];
+                stat = line.stat;
                 status = '正常';
                 trStyle = '';
 
-                mboard._serStatus[line['server']] = (stat !== 'error');
+                mboard._serStatus[line.server] = (stat !== 'error');
                 if (stat === 'error') {
                     stat = {
                         cpuprct: '-',
@@ -146,13 +131,13 @@ var MainBoard = function() {
                     trStyle = ' class="err-tr"';
                 }
 
-                db = line['db'];
-                html += ['<tr', trStyle, '><td class="cell_c">', line['server'],
-                    '</td><td class="cell_c">', switchPrct(stat['cpuprct']),
-                    '</td><td class="cell_c">', switchPrct(stat['vmem']['percent']),
-                    '</td><td class="cell_c">', switchUndef(db['tps']),
-                    '</td><td class="cell_c">', switchUndef(db['avgresp']),
-                    '</td><td class="cell_c">', switchPrct(db['feedsuc']),
+                db = line.db;
+                html += ['<tr', trStyle, '><td class="cell_c">', line.server,
+                    '</td><td class="cell_c">', switchPrct(stat.cpuprct),
+                    '</td><td class="cell_c">', switchPrct(stat.vmem.percent),
+                    '</td><td class="cell_c">', switchUndef(db.tps),
+                    '</td><td class="cell_c">', switchUndef(db.avgresp),
+                    '</td><td class="cell_c">', switchPrct(db.feedsuc),
                     '</td><td class="cell_c">', status, '</td></tr>'].join('');
             }
             html = this._content.replace(/\$\{content\}/, html);
