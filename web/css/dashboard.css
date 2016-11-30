@@ -199,3 +199,30 @@ th.head_align {
     font-size: 18px;
     margin-right: 20px;
 }
+
+.set-board {
+    position: fixed;
+    float: left;
+    width: 600px;
+    height: 452px;
+    overflow: hidden;
+    top: 55px;
+    padding: auto;
+}
+
+.set-list {
+    height: 267px;
+    overflow: auto;
+}
+
+.btn-del {
+    color: red;
+    cursor: pointer;
+}
+
+.set-panel-bottom {
+    position: static;
+    vertical-align: bottom;
+    text-align: center;
+    margin-bottom: 6px;
+}

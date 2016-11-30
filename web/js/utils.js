@@ -68,3 +68,14 @@ function changeDate(date, delta) {
     return [year, (month < 10 ? '0' : '') + month,
         (day < 10 ? '0' : '') + day].join('-');
 }
+
+var _ipv4_regex = /^(?:(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.){3}(?:\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])$/;
+
+function verifyIPv4(val) {
+    return val.match(_ipv4_regex);
+}
+
+function verifyPort(val) {
+    val = parseInt(val);
+    return (!isNaN(val) && val >= 0 && val < 65536);
+}

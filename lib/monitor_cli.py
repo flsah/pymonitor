@@ -60,7 +60,7 @@ def __collect__(srv_nm, host, port):
         return data
     except socket.error as msg:
         print msg
-    except SystemError as error:
+    except Exception as error:
         print error.message
         if s:
             s.close()

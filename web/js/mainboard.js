@@ -40,6 +40,8 @@ var MainBoard = function() {
 
         historyEl: null,
 
+        setEl: null,
+
         _timer: 0,
 
         init: function(config) {
@@ -74,10 +76,18 @@ var MainBoard = function() {
 
         _loadScript: function() {
             var prefix = '/static/',
-                spt = this._scripts;
+                spt = this._scripts,
+                callback;
 
             for (var i = 0; i < spt.length; i++) {
-                $.getScript(prefix + spt[i]);
+                if (spt[i].indexOf('setboard') > 0) {
+                    callback = function() {
+                        mboard._initSet();
+                    };
+                } else {
+                    callback = function() {};
+                }
+                $.getScript(prefix + spt[i], callback);
             }
         },
 
@@ -198,6 +208,12 @@ var MainBoard = function() {
 
         history: function () {
             monitor.loadHistory();
+        },
+
+        _initSet: function() {
+            setter.create({
+                setEl: this.setEl
+            });
         }
     };
 };

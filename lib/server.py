@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 # coding: utf-8
 
+import sys
 import json
 import re
 import tornado.web
@@ -92,6 +93,54 @@ class IndexMapHandler(RequestHandler):
         __send_json__(self, '')
 
 
+class SetHandler(RequestHandler):
+    def data_received(self, chunk):
+        pass
+
+    def post(self):
+        catalog = self.get_body_argument('type')
+
+        if catalog == 'query':
+            name, inet, conf = None, None, '['
+            try:
+                for line in fUtil.read(globalv.conf_path()).split('\n'):
+                    if len(line.strip()) == 0:
+                        continue
+
+                    info = line.split("{", 2)
+                    name = info[0].strip()
+
+                    if name == 'local':
+                        continue
+
+                    inet = info[1].replace("}", "").split(',', 2)
+                    conf += '{"server":"' + name +\
+                            '","host":"' + inet[0].strip() +\
+                            '","port":' + inet[1].strip() + '},'
+
+                conf = re.sub(r',$', ']', conf)
+            except file.errors as msg:
+                print msg
+                conf = '[]'
+
+            __send_json__(self, conf)
+        elif catalog == 'save':
+            reload(sys)
+            sys.setdefaultencoding('utf-8')
+
+            try:
+                data = json.loads(self.get_body_argument('data'))
+                conf = fUtil.read(globalv.conf_path()).split('\n')[0] + '\n'
+                for d in data:
+                    conf += d['server'] + '{' + d['host'] + ', ' + repr(d['port']) + '}\n'
+
+                fUtil.write(globalv.conf_path(), conf)
+                __send_json__(self, '{"status":"ok"}')
+            except Exception as error:
+                print error
+                __send_json__(self, '{"status":"error"}')
+
+
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
@@ -101,6 +150,7 @@ class Application(tornado.web.Application):
             (r'/serverinfo/(.+)', ServerInfoHandler),
             (r'/history/(.+)', HistoryHandler),
             (r'/history', HistoryHandler),
+            (r'/setter', SetHandler),
             (r'/index.js.map', IndexMapHandler),
         ]
         settings = {
