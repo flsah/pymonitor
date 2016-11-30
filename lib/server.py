@@ -22,7 +22,7 @@ class MainHandler(RequestHandler):
             debug = self.get_argument('debug')
             if debug:
                 self.render('index_debug.html')
-        except Exception:
+        except tornado.web.HTTPError:
             self.render("index.html")
 
 
